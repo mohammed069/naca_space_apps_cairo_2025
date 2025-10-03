@@ -1,0 +1,34 @@
+screenshot,role,text,key,notes
+weather_home,title,Montreal,homeLocationMontreal,STATIC - city name
+weather_home,temperature,19°,homeTemperature19,POSSIBLY_DYNAMIC - temperature changes
+weather_home,subtitle,Partly Cloudy,homeWeatherPartlyCloudy,POSSIBLY_DYNAMIC - weather condition changes
+weather_home,label,Feels,homeFeelsLike,STATIC - label text
+weather_home,temperature,14°,homeFeelsLikeTemp,POSSIBLY_DYNAMIC - feels like temperature changes
+weather_home,day,Mon,dayMon,STATIC - day abbreviation
+weather_home,day,Tue,dayTue,STATIC - day abbreviation
+weather_home,day,Wed,dayWed,STATIC - day abbreviation
+weather_home,day,Thu,dayThu,STATIC - day abbreviation
+weather_home,day,Fri,dayFri,STATIC - day abbreviation
+weather_search,title,Weather,weatherTitle,STATIC - screen title
+weather_search,placeholder,Search for a city or airport,searchLocationPlaceholder,STATIC - search placeholder
+weather_search,location,Montreal Canada,locationMontreal,STATIC - location name
+weather_search,location,Toronto Canada,locationToronto,STATIC - location name
+weather_search,location,Ottawa Canada,locationOttawa,STATIC - location name
+weather_search,temperature,19°,temp19Degrees,POSSIBLY_DYNAMIC - temperature changes
+weather_search,temperature,20°,temp20Degrees,POSSIBLY_DYNAMIC - temperature changes
+weather_search,temperature,13°,temp13Degrees,POSSIBLY_DYNAMIC - temperature changes
+weather_search,condition,Rain,conditionRain,POSSIBLY_DYNAMIC - weather condition
+weather_search,condition,Cloudy,conditionCloudy,POSSIBLY_DYNAMIC - weather condition
+weather_details,label,Low Health Risk,healthRiskLow,POSSIBLY_DYNAMIC - health risk level
+weather_details,label,Moderate,healthRiskModerate,POSSIBLY_DYNAMIC - health risk level
+weather_details,time,5:28 AM,time528AM,POSSIBLY_DYNAMIC - current time
+weather_details,precipitation,1.8 mm,precipitation18mm,POSSIBLY_DYNAMIC - precipitation amount
+weather_details,label,in last hour,precipitationLastHour,STATIC - time reference
+weather_map,title,Map Page,mapPageTitle,STATIC - page title
+weather_ui,label,Frame 27,frameTitle,STATIC - UI frame reference
+weather_ui,menu,Overview,inputMethodOverview,STATIC - menu item
+weather_ui,menu,Suggest,inputMethodSuggest,STATIC - menu item
+weather_ui,menu,Correctors,inputMethodCorrectors,STATIC - menu item
+weather_ui,menu,Keyboard,inputMethodKeyboard,STATIC - menu item
+weather_ui,menu,Help,inputMethodHelp,STATIC - menu item
+weather_ui,menu,Settings,inputMethodSettings,STATIC - menu item
