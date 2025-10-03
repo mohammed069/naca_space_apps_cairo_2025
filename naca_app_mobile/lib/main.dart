@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:naca_app_mobile/data/repo.dart';
 
-void main() {
+void main() async {
+  await AppRepo.init();
   runApp(const MyApp());
 }
 
