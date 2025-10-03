@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class NasaResponse {
   final String type;
   final Geometry geometry;

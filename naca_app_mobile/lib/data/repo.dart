@@ -24,8 +24,8 @@ class AppRepo {
       path: buildWeatherDataUrl(
         latitude: 30.0444,
         longitude: 30.0444,
-        startDate: "20200101",
-        endDate: "20200103",
+        startDate: "20010101",
+        endDate: "20241231",
         parameters: [
           "T2M",
           "T2M_MIN",
@@ -40,8 +40,12 @@ class AppRepo {
       options: Options(responseType: ResponseType.json),
     );
     print(
-      "====================${response.properties.parameter["T2M"]}====================",
+      "====================T2M=>${response.properties.parameter["T2M"]}====================",
     );
+    final averages = calculateDailyAverages(
+      response.properties.parameter["T2M"]!,
+    );
+    print("====================average=>$averages====================");
   }
 
   static String buildWeatherDataUrl({
@@ -83,5 +87,23 @@ class AppRepo {
     } catch (e) {
       throw Exception('Unexpected error: ${e.toString()}');
     }
+  }
+
+  static Map<String, double> calculateDailyAverages(Map<String, double> temps) {
+    Map<String, List<double>> grouped = {};
+
+    temps.forEach((date, value) {
+      String monthDay = date.substring(4, 8);
+      grouped.putIfAbsent(monthDay, () => []);
+      grouped[monthDay]!.add(value);
+    });
+
+    Map<String, double> averages = {};
+    grouped.forEach((monthDay, values) {
+      double avg = values.reduce((a, b) => a + b) / values.length;
+      averages[monthDay] = avg;
+    });
+
+    return averages;
   }
 }
