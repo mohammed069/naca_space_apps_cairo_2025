@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:naca_app_mobile/models/nasa_response_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppRepo {
@@ -9,7 +10,7 @@ class AppRepo {
   static String get dailyPoint =>
       'https://power.larc.nasa.gov/api/temporal/daily/point';
 
-  static init() {
+  static init() async {
     _dio = Dio(
       BaseOptions(
         baseUrl: 'https://power.larc.nasa.gov/api/temporal/daily',
@@ -19,7 +20,7 @@ class AppRepo {
       ),
     );
 
-    get(
+    final response = await get(
       path: buildWeatherDataUrl(
         latitude: 30.0444,
         longitude: 30.0444,
@@ -37,6 +38,9 @@ class AppRepo {
         ],
       ),
       options: Options(responseType: ResponseType.json),
+    );
+    print(
+      "====================${response.properties.parameter["T2M"]}====================",
     );
   }
 
@@ -62,7 +66,7 @@ class AppRepo {
         'header=true';
   }
 
-  static Future<Response> get({
+  static Future<NasaResponse> get({
     required String path,
     Map<String, dynamic>? queryParameters,
     Options? options,
@@ -73,7 +77,7 @@ class AppRepo {
       print("===============response================");
       debugPrint(response.data.toString(), wrapWidth: 1024);
       print("=================end================");
-      return response;
+      return NasaResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception('Dio error: ${e.message}');
     } catch (e) {
