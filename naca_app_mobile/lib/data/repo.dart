@@ -46,6 +46,14 @@ class AppRepo {
       response.properties.parameter["T2M"]!,
     );
     print("====================average=>$averages====================");
+
+    final averageOfOneDay = calculateOneDayAverage(
+      response.properties.parameter["T2M"]!,
+      "0101",
+    );
+    print(
+      "====================averageOfOneDay=>$averageOfOneDay====================",
+    );
   }
 
   static String buildWeatherDataUrl({
@@ -105,5 +113,26 @@ class AppRepo {
     });
 
     return averages;
+  }
+
+  static double? calculateOneDayAverage(
+    Map<String, double> temps,
+    String monthDay,
+  ) {
+    List<double> values = [];
+
+    temps.forEach((date, value) {
+      String currentMonthDay = date.substring(4, 8);
+      if (currentMonthDay == monthDay) {
+        values.add(value);
+      }
+    });
+
+    if (values.isEmpty) {
+      return null;
+    }
+
+    double avg = values.reduce((a, b) => a + b) / values.length;
+    return avg;
   }
 }
