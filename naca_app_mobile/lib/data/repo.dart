@@ -6,15 +6,51 @@ class AppRepo {
   static late Dio _dio;
   static String get dailyPoint =>
       'https://power.larc.nasa.gov/api/temporal/daily/point';
+  static String get hourlyPoint =>
+      'https://power.larc.nasa.gov/api/temporal/hourly/point';
 
-  static Future<double> initTest() async {
-    double prob = await getProbabilityOfOneDay(
+  static Future<Map<String, double>> initTest() async {
+    // double prob = await getProbabilityOfOneDay(
+    //   "0101",
+    //   "T2M_MAX",
+    //   30.444,
+    //   30.0444,
+    // );
+    Map<String, double> prob = await getProbabilityOfHourlyData(
       "0101",
-      "T2M_MAX",
+      "T2M",
       30.444,
       30.0444,
     );
     return prob;
+  }
+
+  static Future<Map<String, double>> getProbabilityOfHourlyData(
+    String monthDay,
+    String parameter,
+    double latitude,
+    double longitude,
+  ) async {
+    await init();
+    final response = await get(
+      path: "/hourly/point",
+      options: Options(responseType: ResponseType.json),
+      queryParameters: {
+        'start': '20010101',
+        'end': '20241231',
+        'latitude': latitude,
+        'longitude': longitude,
+        'community': 're',
+        'parameters': parameter,
+        'format': 'json',
+        'header': 'true',
+      },
+    );
+    final averages = calculateHourlyAveragesForOneDay(
+      response.properties.parameter[parameter]!,
+      "0101",
+    );
+    return averages;
   }
 
   static Future<double> getProbabilityOfOneDay(
@@ -25,7 +61,7 @@ class AppRepo {
   ) async {
     await init();
     final response = await get(
-      path: "/point",
+      path: "/daily/point",
       options: Options(responseType: ResponseType.json),
       queryParameters: {
         'start': '20010101',
@@ -48,7 +84,7 @@ class AppRepo {
   static init() async {
     _dio = Dio(
       BaseOptions(
-        baseUrl: 'https://power.larc.nasa.gov/api/temporal/daily',
+        baseUrl: 'https://power.larc.nasa.gov/api/temporal',
         connectTimeout: Duration(milliseconds: 30000),
         receiveTimeout: Duration(milliseconds: 30000),
         sendTimeout: Duration(milliseconds: 30000),
@@ -176,4 +212,69 @@ class AppRepo {
     double avg = values.reduce((a, b) => a + b) / values.length;
     return avg;
   }
+
+  static Map<String, double> calculateHourlyAveragesForOneDay(
+    Map<String, double> temps,
+    String monthDay,
+  ) {
+    Map<String, List<double>> grouped = {};
+
+    temps.forEach((dateHour, value) {
+      // YYYYMMDDHH
+      String currentMonthDay = dateHour.substring(4, 8);
+      String hour = dateHour.substring(8, 10);
+
+      if (currentMonthDay == monthDay) {
+        grouped.putIfAbsent(hour, () => []);
+        grouped[hour]!.add(value);
+      }
+    });
+
+    Map<String, double> averages = {};
+    grouped.forEach((hour, values) {
+      double avg = values.reduce((a, b) => a + b) / values.length;
+      averages[hour] = avg;
+    });
+
+    return averages;
+  }
+
+  // static Map<String, double> calculateHourlyAverages(
+  //   Map<String, double> temps,
+  //   String monthDay,
+  // ) {
+  //   Map<String, List<double>> grouped = {};
+
+  //   temps.forEach((dateHour, value) {
+  //     String hour = dateHour.substring(8, 10);
+
+  //     grouped.putIfAbsent(hour, () => []);
+  //     grouped[hour]!.add(value);
+  //   });
+
+  //   Map<String, double> averages = {};
+  //   grouped.forEach((hour, values) {
+  //     double avg = values.reduce((a, b) => a + b) / values.length;
+  //     averages[hour] = avg;
+  //   });
+
+  //   return averages;
+  // }
+
+  // static double calculateHourlyAverageOfOneDay(
+  //   Map<String, double> temps,
+  //   String monthDay,
+  // ) {
+  //   if (temps.isEmpty) return 0.0;
+  //   double total = 0.0;
+  //   int count = 0;
+  //   temps.forEach((date, value) {
+  //     String currentMonthDay = date.substring(4, 8);
+  //     if (currentMonthDay == monthDay) {
+  //       total += value;
+  //       count++;
+  //     }
+  //   });
+  //   return count > 0 ? total / count : 0.0;
+  // }
 }
