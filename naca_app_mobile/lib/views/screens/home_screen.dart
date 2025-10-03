@@ -7,6 +7,7 @@ import 'package:naca_app_mobile/views/widgets/containr_widget.dart';
 import '../../core/app_colors.dart';
 import '../../abd/controller/weather_controller.dart';
 import '../widgets/custom_form_widgets.dart';
+import 'warnings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,8 +27,13 @@ class _HomeScreenState extends State<HomeScreen> {
     // Load weather data for current location when screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       debugPrint('🚀 PostFrameCallback executing...');
-      final weatherController = Provider.of<WeatherController>(context, listen: false);
-      debugPrint('🚀 WeatherController obtained, calling getAllWeatherDataForCurrentLocation...');
+      final weatherController = Provider.of<WeatherController>(
+        context,
+        listen: false,
+      );
+      debugPrint(
+        '🚀 WeatherController obtained, calling getAllWeatherDataForCurrentLocation...',
+      );
       weatherController.getAllWeatherDataForCurrentLocation();
     });
   }
@@ -51,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Consumer<WeatherController>(
                 builder: (context, weatherController, child) {
                   final weather = weatherController.currentWeather;
-                  
+
                   if (weatherController.isLoading) {
                     return const Column(
                       children: [
@@ -64,11 +70,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     );
                   }
-                  
+
                   if (weather == null) {
                     return const Column(
                       children: [
-                        Icon(Icons.error_outline, color: Colors.white70, size: 48),
+                        Icon(
+                          Icons.error_outline,
+                          color: Colors.white70,
+                          size: 48,
+                        ),
                         SizedBox(height: 16),
                         Text(
                           'Unable to load weather',
@@ -77,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     );
                   }
-                  
+
                   return Column(
                     children: [
                       Text(
@@ -107,13 +117,51 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        'Feels like ${weather.feelsLikeString}',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                        ),
+                      Consumer<WeatherController>(
+                        builder: (context, controller, child) {
+                          final todayForecast =
+                              controller.weeklyForecast?.isNotEmpty == true
+                                  ? controller.weeklyForecast!.first
+                                  : null;
+
+                          if (todayForecast != null) {
+                            return Text(
+                              'H: ${todayForecast.maxTemperatureString}, L: ${todayForecast.minTemperatureString}',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            );
+                          } else {
+                            return Text(
+                              'Feels like ${weather.feelsLikeString}',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                       const SizedBox(height: 16),
+                      CustomElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const WarningsScreen(),
+                            ),
+                          );
+                        },
+                        text: 'Show Warnings',
+                        width: 160,
+                        height: 45,
+                        gradientColors: [
+                          AppColors.warning,
+                          AppColors.warning.withValues(alpha: 0.8),
+                        ],
                       ),
                     ],
                   );
@@ -160,13 +208,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                 text: 'Hourly',
                                 width: 100,
                                 height: 40,
-                                gradientColors: isHourly ? [
-                                  AppColors.primary,
-                                  AppColors.primaryLight,
-                                ] : [
-                                  AppColors.textSecondary.withValues(alpha: 0.3),
-                                  AppColors.textSecondary.withValues(alpha: 0.2),
-                                ],
+                                gradientColors:
+                                    isHourly
+                                        ? [
+                                          AppColors.primary,
+                                          AppColors.primaryLight,
+                                        ]
+                                        : [
+                                          AppColors.textSecondary.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                          AppColors.textSecondary.withValues(
+                                            alpha: 0.2,
+                                          ),
+                                        ],
                               ),
                               const Spacer(),
                               CustomElevatedButton(
@@ -179,13 +234,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                 text: 'Daily',
                                 width: 100,
                                 height: 40,
-                                gradientColors: !isHourly ? [
-                                  AppColors.primary,
-                                  AppColors.primaryLight,
-                                ] : [
-                                  AppColors.textSecondary.withValues(alpha: 0.3),
-                                  AppColors.textSecondary.withValues(alpha: 0.2),
-                                ],
+                                gradientColors:
+                                    !isHourly
+                                        ? [
+                                          AppColors.primary,
+                                          AppColors.primaryLight,
+                                        ]
+                                        : [
+                                          AppColors.textSecondary.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                          AppColors.textSecondary.withValues(
+                                            alpha: 0.2,
+                                          ),
+                                        ],
                               ),
                               SizedBox(width: 20),
                             ],
@@ -195,15 +257,19 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Consumer<WeatherController>(
                               builder: (context, weatherController, child) {
                                 if (isHourly) {
-                                  final hourlyForecast = weatherController.hourlyForecast;
-                                  
+                                  final hourlyForecast =
+                                      weatherController.hourlyForecast;
+
                                   if (weatherController.isLoadingHourly) {
                                     return const Center(
-                                      child: CircularProgressIndicator(color: Colors.white),
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ),
                                     );
                                   }
-                                  
-                                  if (hourlyForecast == null || hourlyForecast.isEmpty) {
+
+                                  if (hourlyForecast == null ||
+                                      hourlyForecast.isEmpty) {
                                     return const Center(
                                       child: Text(
                                         'No hourly data available',
@@ -211,33 +277,41 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     );
                                   }
-                                  
+
                                   return SingleChildScrollView(
                                     scrollDirection: Axis.horizontal,
                                     child: Row(
-                                      children: hourlyForecast.take(12).map((hourly) {
-                                        return Padding(
-                                          padding: const EdgeInsets.only(right: 16),
-                                          child: ContainerWidget(
-                                            time: hourly.timeString,
-                                            temperature: hourly.temperatureString,
-                                            condition: hourly.condition,
-                                            isHourly: true,
-                                          ),
-                                        );
-                                      }).toList(),
+                                      children:
+                                          hourlyForecast.take(12).map((hourly) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                right: 16,
+                                              ),
+                                              child: ContainerWidget(
+                                                time: hourly.timeString,
+                                                temperature:
+                                                    hourly.temperatureString,
+                                                condition: hourly.condition,
+                                                isHourly: true,
+                                              ),
+                                            );
+                                          }).toList(),
                                     ),
                                   );
                                 } else {
-                                  final weeklyForecast = weatherController.weeklyForecast;
-                                  
+                                  final weeklyForecast =
+                                      weatherController.weeklyForecast;
+
                                   if (weatherController.isLoadingWeekly) {
                                     return const Center(
-                                      child: CircularProgressIndicator(color: Colors.white),
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ),
                                     );
                                   }
-                                  
-                                  if (weeklyForecast == null || weeklyForecast.isEmpty) {
+
+                                  if (weeklyForecast == null ||
+                                      weeklyForecast.isEmpty) {
                                     return const Center(
                                       child: Text(
                                         'No weekly data available',
@@ -245,21 +319,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     );
                                   }
-                                  
+
                                   return SingleChildScrollView(
                                     scrollDirection: Axis.horizontal,
                                     child: Row(
-                                      children: weeklyForecast.map((daily) {
-                                        return Padding(
-                                          padding: const EdgeInsets.only(right: 16),
-                                          child: ContainerWidget(
-                                            time: daily.dayName,
-                                            temperature: daily.temperatureRangeString,
-                                            condition: daily.condition,
-                                            isHourly: false,
-                                          ),
-                                        );
-                                      }).toList(),
+                                      children:
+                                          weeklyForecast.map((daily) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                right: 16,
+                                              ),
+                                              child: ContainerWidget(
+                                                time: daily.dayName,
+                                                temperature:
+                                                    daily
+                                                        .temperatureRangeString,
+                                                condition: daily.condition,
+                                                isHourly: false,
+                                              ),
+                                            );
+                                          }).toList(),
                                     ),
                                   );
                                 }

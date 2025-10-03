@@ -67,7 +67,7 @@ class _SearchByCityScreenState extends State<SearchByCityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       
-      backgroundColor: const Color.fromARGB(255, 155, 112, 255),
+      backgroundColor: AppColors.primary,
       appBar: AppBar(
         title: const Text(
           'Search by City',
