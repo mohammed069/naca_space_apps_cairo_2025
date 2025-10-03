@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:naca_app_mobile/data/repo.dart';
 
 void main() async {
-  await AppRepo.init();
+  double x = await AppRepo.initTest();
+  print("The probability is==================================> $x");
   runApp(const MyApp());
 }
 
