@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../service/location_service.dart';
 import '../service/weather_service.dart';
 import '../model/weather_model.dart';
+import '../../providers/settings_provider.dart';
 
 class WeatherController extends ChangeNotifier {
   late final WeatherService _weatherService;

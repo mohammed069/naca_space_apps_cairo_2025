@@ -44,7 +44,10 @@ dependencies:
   curved_navigation_bar: ^1.0.6
   geocoding: ^4.0.0
   fl_chart: ^0.68.0
+<<<<<<< Updated upstream
   
+=======
+>>>>>>> Stashed changes
 
 dev_dependencies:
   flutter_test:

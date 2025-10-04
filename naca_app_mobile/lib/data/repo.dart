@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:naca_app_mobile/models/nasa_response_model.dart';
 
@@ -62,6 +63,53 @@ class AppRepo {
       monthDay,
     );
     return average!;
+  }
+
+  static Future<double> calculateProbability(
+    String monthDay,
+    String parameter,
+    double latitude,
+    double longitude,
+    double threshold,
+  ) async {
+    await init();
+    final response = await get(
+      path: "/daily/point",
+      options: Options(responseType: ResponseType.json),
+      queryParameters: {
+        'start': '20010101',
+        'end': '20241231',
+        'latitude': latitude,
+        'longitude': longitude,
+        'community': 're',
+        'parameters': parameter,
+        'format': 'json',
+        'header': 'true',
+      },
+    );
+    
+    final values = response.properties.parameter[parameter]!;
+    List<double> dayValues = [];
+    
+    // Extract values for the specific month-day across all years
+    values.forEach((date, value) {
+      String currentMonthDay = date.substring(4, 8);
+      if (currentMonthDay == monthDay) {
+        dayValues.add(value);
+      }
+    });
+    
+    if (dayValues.isEmpty) {
+      return 0.0;
+    }
+    
+    // Count how many times the value exceeds the threshold
+    int exceedingCount = dayValues.where((value) => value > threshold).length;
+    
+    // Calculate probability as percentage
+    double probability = (exceedingCount / dayValues.length) * 100;
+    
+    return probability;
   }
 
   static init() async {
@@ -196,5 +244,162 @@ class AppRepo {
     });
 
     return averages;
+  }
+
+  // Statistical utility methods for advanced probability analysis
+  
+  static Map<String, double> calculatePercentiles(Map<String, double> values) {
+    List<double> sortedValues = values.values.toList()..sort();
+    if (sortedValues.isEmpty) return {};
+    
+    return {
+      'p10': _getPercentile(sortedValues, 0.10),
+      'p25': _getPercentile(sortedValues, 0.25),
+      'p50': _getPercentile(sortedValues, 0.50), // median
+      'p75': _getPercentile(sortedValues, 0.75),
+      'p90': _getPercentile(sortedValues, 0.90),
+    };
+  }
+  
+  static double _getPercentile(List<double> sortedValues, double percentile) {
+    int n = sortedValues.length;
+    double index = percentile * (n - 1);
+    int lowerIndex = index.floor();
+    int upperIndex = index.ceil();
+    
+    if (lowerIndex == upperIndex) {
+      return sortedValues[lowerIndex];
+    } else {
+      double weight = index - lowerIndex;
+      return sortedValues[lowerIndex] * (1 - weight) + sortedValues[upperIndex] * weight;
+    }
+  }
+  
+  static Map<String, double> calculateConfidenceInterval(List<double> values, double confidenceLevel) {
+    if (values.isEmpty) return {'lower': 0.0, 'upper': 0.0, 'mean': 0.0};
+    
+    // Calculate mean
+    double mean = values.reduce((a, b) => a + b) / values.length;
+    
+    // Calculate standard deviation
+    double variance = values.map((x) => (x - mean) * (x - mean)).reduce((a, b) => a + b) / values.length;
+    double stdDev = sqrt(variance);
+    
+    // Calculate standard error
+    double standardError = stdDev / sqrt(values.length.toDouble());
+    
+    // For 95% confidence interval, use z-score of 1.96
+    double zScore = confidenceLevel == 0.95 ? 1.96 : 2.576; // 95% or 99%
+    double marginOfError = zScore * standardError;
+    
+    return {
+      'lower': mean - marginOfError,
+      'upper': mean + marginOfError,
+      'mean': mean,
+      'stdDev': stdDev,
+    };
+  }
+  
+  static Map<String, dynamic> generateDistributionData(List<double> values) {
+    if (values.isEmpty) return {};
+    
+    // Calculate basic statistics
+    double mean = values.reduce((a, b) => a + b) / values.length;
+    double variance = values.map((x) => (x - mean) * (x - mean)).reduce((a, b) => a + b) / values.length;
+    double stdDev = sqrt(variance);
+    
+    // Generate bell curve points
+    List<Map<String, double>> bellCurvePoints = [];
+    double minVal = values.reduce((a, b) => a < b ? a : b);
+    double maxVal = values.reduce((a, b) => a > b ? a : b);
+    double range = maxVal - minVal;
+    
+    for (int i = 0; i <= 100; i++) {
+      double x = minVal + (range * i / 100);
+      double y = _normalDistribution(x, mean, stdDev);
+      bellCurvePoints.add({'x': x, 'y': y});
+    }
+    
+    return {
+      'mean': mean,
+      'median': _getPercentile(values..sort(), 0.50),
+      'stdDev': stdDev,
+      'bellCurve': bellCurvePoints,
+      'min': minVal,
+      'max': maxVal,
+    };
+  }
+  
+  static double _normalDistribution(double x, double mean, double stdDev) {
+    double exponent = -0.5 * pow((x - mean) / stdDev, 2);
+    return exp(exponent) / (stdDev * sqrt(2 * pi));
+  }
+  
+  static Future<Map<String, dynamic>> getAdvancedStatistics(
+    String monthDay,
+    String parameter,
+    double latitude,
+    double longitude,
+  ) async {
+    await init();
+    final response = await get(
+      path: "/daily/point",
+      options: Options(responseType: ResponseType.json),
+      queryParameters: {
+        'start': '20010101',
+        'end': '20241231',
+        'latitude': latitude,
+        'longitude': longitude,
+        'community': 're',
+        'parameters': parameter,
+        'format': 'json',
+        'header': 'true',
+      },
+    );
+    
+    final values = response.properties.parameter[parameter]!;
+    List<double> dayValues = [];
+    Map<String, List<double>> yearlyData = {};
+    
+    // Extract values for the specific month-day across all years
+    values.forEach((date, value) {
+      String currentMonthDay = date.substring(4, 8);
+      if (currentMonthDay == monthDay) {
+        dayValues.add(value);
+        String year = date.substring(0, 4);
+        yearlyData.putIfAbsent(year, () => []);
+        yearlyData[year]!.add(value);
+      }
+    });
+    
+    if (dayValues.isEmpty) {
+      return {
+        'percentiles': {},
+        'confidenceInterval': {},
+        'distribution': {},
+        'yearlyComparison': {},
+      };
+    }
+    
+    // Calculate all statistical measures
+    Map<String, double> percentiles = calculatePercentiles({for (int i = 0; i < dayValues.length; i++) i.toString(): dayValues[i]});
+    Map<String, double> confidenceInterval = calculateConfidenceInterval(dayValues, 0.95);
+    Map<String, dynamic> distribution = generateDistributionData(dayValues);
+    
+    // Prepare yearly comparison data
+    Map<String, double> yearlyAverages = {};
+    yearlyData.forEach((year, values) {
+      if (values.isNotEmpty) {
+        yearlyAverages[year] = values.reduce((a, b) => a + b) / values.length;
+      }
+    });
+    
+    return {
+      'percentiles': percentiles,
+      'confidenceInterval': confidenceInterval,
+      'distribution': distribution,
+      'yearlyComparison': yearlyAverages,
+      'allValues': dayValues,
+    };
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../providers/settings_provider.dart';
 
 enum WeatherCondition {
   clear,
@@ -181,6 +182,31 @@ class Weather {
   String get humidityString => '$humidity%';
   String get pressureString => '$pressure hPa';
 
+  // Methods with unit conversion support
+  String getTemperatureString(SettingsProvider? settings) {
+    if (settings == null) return temperatureString;
+    final convertedTemp = settings.convertTemperature(temperature);
+    return '${convertedTemp.round()}${settings.getTemperatureUnitSymbol()}';
+  }
+
+  String getFeelsLikeString(SettingsProvider? settings) {
+    if (settings == null) return feelsLikeString;
+    final convertedTemp = settings.convertTemperature(feelsLike);
+    return '${convertedTemp.round()}${settings.getTemperatureUnitSymbol()}';
+  }
+
+  String getWindSpeedString(SettingsProvider? settings) {
+    if (settings == null) return windSpeedString;
+    final convertedSpeed = settings.convertWindSpeed(windSpeed);
+    return '${convertedSpeed.toStringAsFixed(1)} ${settings.getWindSpeedUnitSymbol()}';
+  }
+
+  String getPressureString(SettingsProvider? settings) {
+    if (settings == null) return pressureString;
+    final convertedPressure = settings.convertPressure(pressure.toDouble());
+    return '${convertedPressure.toStringAsFixed(1)} ${settings.getPressureUnitSymbol()}';
+  }
+
   String get iconUrl => 'https:$icon';
 
   WeatherCondition get condition {
@@ -252,6 +278,19 @@ class HourlyWeather {
 
   String get temperatureString => '${temperature.round()}°C';
   String get timeString => '${time.hour.toString().padLeft(2, '0')}:00';
+
+  // Methods with unit conversion support
+  String getTemperatureString(SettingsProvider? settings) {
+    if (settings == null) return temperatureString;
+    final convertedTemp = settings.convertTemperature(temperature);
+    return '${convertedTemp.round()}${settings.getTemperatureUnitSymbol()}';
+  }
+
+  String getWindSpeedString(SettingsProvider? settings) {
+    if (settings == null) return '${windSpeed.toStringAsFixed(1)} m/s';
+    final convertedSpeed = settings.convertWindSpeed(windSpeed);
+    return '${convertedSpeed.toStringAsFixed(1)} ${settings.getWindSpeedUnitSymbol()}';
+  }
   String get windSpeedString => '${windSpeed.toStringAsFixed(1)} m/s';
   String get humidityString => '$humidity%';
   String get chanceOfRainString => '${chanceOfRain.round()}%';
@@ -339,6 +378,32 @@ class DailyWeather {
     return days[date.weekday - 1];
   }
   String get dateString => '${date.day}/${date.month}';
+
+  // Methods with unit conversion support
+  String getMaxTemperatureString(SettingsProvider? settings) {
+    if (settings == null) return maxTemperatureString;
+    final convertedTemp = settings.convertTemperature(maxTemperature);
+    return '${convertedTemp.round()}${settings.getTemperatureUnitSymbol()}';
+  }
+
+  String getMinTemperatureString(SettingsProvider? settings) {
+    if (settings == null) return minTemperatureString;
+    final convertedTemp = settings.convertTemperature(minTemperature);
+    return '${convertedTemp.round()}${settings.getTemperatureUnitSymbol()}';
+  }
+
+  String getTemperatureRangeString(SettingsProvider? settings) {
+    if (settings == null) return temperatureRangeString;
+    final convertedMax = settings.convertTemperature(maxTemperature);
+    final convertedMin = settings.convertTemperature(minTemperature);
+    return '${convertedMax.round()}°/${convertedMin.round()}°';
+  }
+
+  String getWindSpeedString(SettingsProvider? settings) {
+    if (settings == null) return '${windSpeed.toStringAsFixed(1)} m/s';
+    final convertedSpeed = settings.convertWindSpeed(windSpeed);
+    return '${convertedSpeed.toStringAsFixed(1)} ${settings.getWindSpeedUnitSymbol()}';
+  }
   String get windSpeedString => '${windSpeed.toStringAsFixed(1)} m/s';
   String get humidityString => '$humidity%';
   String get chanceOfRainString => '${chanceOfRain.round()}%';

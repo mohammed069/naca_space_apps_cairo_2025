@@ -7,6 +7,10 @@ import 'package:intl/intl.dart';
 import 'package:naca_app_mobile/views/screens/warnings_screen.dart';
 import '../../core/app_colors.dart';
 import '../../data/repo.dart';
+<<<<<<< Updated upstream
+=======
+import '../widgets/statistical_charts.dart';
+>>>>>>> Stashed changes
 
 class FastWeatherResultScreen extends StatefulWidget {
   final double latitude;
@@ -30,7 +34,13 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   final Map<String, double> _dailyData = {};
+<<<<<<< Updated upstream
   final Map<String, Map<String, double>> _hourlyData = {};
+=======
+  final Map<String, double> _probabilityData = {};
+  final Map<String, Map<String, double>> _hourlyData = {};
+  final Map<String, Map<String, dynamic>> _statisticalData = {};
+>>>>>>> Stashed changes
   int _loadedParameters = 0;
 
   @override
@@ -91,6 +101,29 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
       );
       _dailyData[parameter] = dailyValue;
       
+<<<<<<< Updated upstream
+=======
+      // Fetch probability data with appropriate thresholds
+      final threshold = _getThresholdForParameter(parameter);
+      final probabilityValue = await AppRepo.calculateProbability(
+        monthDay,
+        parameter,
+        widget.latitude,
+        widget.longitude,
+        threshold,
+      );
+      _probabilityData[parameter] = probabilityValue;
+      
+      // Fetch advanced statistical data
+      final statisticalData = await AppRepo.getAdvancedStatistics(
+        monthDay,
+        parameter,
+        widget.latitude,
+        widget.longitude,
+      );
+      _statisticalData[parameter] = statisticalData;
+      
+>>>>>>> Stashed changes
       final hourlyValues = await AppRepo.getProbabilityOfHourlyData(
         monthDay,
         parameter,
@@ -108,6 +141,26 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
     }
   }
 
+<<<<<<< Updated upstream
+=======
+  double _getThresholdForParameter(String parameter) {
+    switch (parameter) {
+      case 'T2M': // Temperature
+        return 30.0; // Above 30°C
+      case 'RH2M': // Humidity
+        return 80.0; // Above 80%
+      case 'WS2M': // Wind Speed
+        return 10.0; // Above 10 m/s
+      case 'PRECTOTCORR': // Precipitation
+        return 5.0; // Above 5mm
+      case 'ALLSKY_SFC_SW_DWN': // Solar Radiation
+        return 8.0; // Above 8 kWh/m²
+      default:
+        return 0.0;
+    }
+  }
+
+>>>>>>> Stashed changes
   Future<void> _fetchRemainingParameters(String monthDay) async {
     final remainingParams = widget.parameters.where((p) => !_dailyData.containsKey(p)).toList();
     
@@ -295,7 +348,11 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
             ),
           
           // Weather data cards
+<<<<<<< Updated upstream
           ..._dailyData.entries.map((entry) => _buildParameterCard(entry.key, entry.value)),
+=======
+          ..._dailyData.entries.map((entry) => _buildParameterCard(entry.key, entry.value, _probabilityData[entry.key])),
+>>>>>>> Stashed changes
           
           // Charts section
           if (_hourlyData.isNotEmpty) ...[
@@ -313,6 +370,27 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
             const SizedBox(height: 32),
           ],
           
+<<<<<<< Updated upstream
+=======
+          // Advanced Statistical Analysis
+          if (_statisticalData.isNotEmpty) ...[
+            const Text(
+              'Advanced Statistical Analysis',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildStatisticalChartsGrid(),
+            const SizedBox(height: 32),
+          ],
+          
+          // Day Suitability Recommendation
+          _buildDaySuitabilityCard(),
+          
+>>>>>>> Stashed changes
           // Show Warnings button
           const SizedBox(height: 16),
           Container(
@@ -376,7 +454,11 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
     );
   }
 
+<<<<<<< Updated upstream
   Widget _buildParameterCard(String parameter, double value) {
+=======
+  Widget _buildParameterCard(String parameter, double value, double? probability) {
+>>>>>>> Stashed changes
     final parameterNames = {
       'T2M': 'Temperature',
       'RH2M': 'Humidity',
@@ -401,6 +483,17 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
       'ALLSKY_SFC_SW_DWN': Icons.wb_sunny,
     };
 
+<<<<<<< Updated upstream
+=======
+    final thresholds = {
+      'T2M': '30°C',
+      'RH2M': '80%',
+      'WS2M': '10 m/s',
+      'PRECTOTCORR': '5mm',
+      'ALLSKY_SFC_SW_DWN': '8 kWh/m²',
+    };
+
+>>>>>>> Stashed changes
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
@@ -409,6 +502,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
       ),
+<<<<<<< Updated upstream
       child: Row(
         children: [
           Container(
@@ -432,10 +526,170 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
                   parameterNames[parameter] ?? parameter,
                   style: const TextStyle(
                     color: Colors.white,
+=======
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icons[parameter] ?? Icons.help,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      parameterNames[parameter] ?? parameter,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Average: ${value.toStringAsFixed(1)}${units[parameter] ?? ''}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (probability != null) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.analytics,
+                        color: Colors.orange,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Probability Analysis',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'There is a ${probability.toStringAsFixed(1)}% chance that ${parameterNames[parameter]?.toLowerCase()} exceeds ${thresholds[parameter]} on this day.',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 13,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDaySuitabilityCard() {
+    // Calculate suitability based on probability data
+    String recommendation;
+    Color cardColor;
+    IconData recommendationIcon;
+    
+    bool isNotSuitable = false;
+    List<String> reasons = [];
+    
+    // Check probability thresholds for bad weather conditions
+    if (_probabilityData['PRECTOTCORR'] != null && _probabilityData['PRECTOTCORR']! > 60) {
+      isNotSuitable = true;
+      reasons.add('High chance of rain (${_probabilityData['PRECTOTCORR']!.toStringAsFixed(1)}%)');
+    }
+    
+    if (_probabilityData['WS2M'] != null && _probabilityData['WS2M']! > 50) {
+      isNotSuitable = true;
+      reasons.add('High chance of strong winds (${_probabilityData['WS2M']!.toStringAsFixed(1)}%)');
+    }
+    
+    if (_probabilityData['T2M'] != null && _probabilityData['T2M']! > 70) {
+      isNotSuitable = true;
+      reasons.add('High chance of extreme heat (${_probabilityData['T2M']!.toStringAsFixed(1)}%)');
+    }
+    
+    if (isNotSuitable) {
+      recommendation = '⚠️ Not recommended for outdoor plans';
+      cardColor = Colors.orange;
+      recommendationIcon = Icons.warning_amber;
+    } else {
+      recommendation = '✅ Good day for a picnic or holiday outing';
+      cardColor = Colors.green;
+      recommendationIcon = Icons.check_circle;
+    }
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardColor.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: cardColor.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: cardColor.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  recommendationIcon,
+                  color: cardColor,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Day Suitability',
+                  style: TextStyle(
+                    color: cardColor,
+>>>>>>> Stashed changes
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+<<<<<<< Updated upstream
                 const SizedBox(height: 4),
                 Text(
                   'Expected value for this day',
@@ -455,6 +709,31 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
+=======
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            recommendation,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          if (reasons.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Reasons: ${reasons.join(', ')}',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.8),
+                fontSize: 13,
+                height: 1.3,
+              ),
+            ),
+          ],
+>>>>>>> Stashed changes
         ],
       ),
     );
@@ -613,4 +892,71 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
         return Colors.white;
     }
   }
+<<<<<<< Updated upstream
+=======
+
+  Widget _buildStatisticalChartsGrid() {
+    return Column(
+      children: _statisticalData.entries.map((entry) {
+        final parameter = entry.key;
+        final statsData = entry.value;
+        
+        final parameterNames = {
+          'T2M': 'Temperature',
+          'RH2M': 'Humidity',
+          'WS2M': 'Wind Speed',
+          'PRECTOTCORR': 'Precipitation',
+          'ALLSKY_SFC_SW_DWN': 'Solar Radiation',
+        };
+
+        final units = {
+          'T2M': '°C',
+          'RH2M': '%',
+          'WS2M': 'm/s',
+          'PRECTOTCORR': 'mm',
+          'ALLSKY_SFC_SW_DWN': 'kWh/m²',
+        };
+
+        final parameterName = parameterNames[parameter] ?? parameter;
+        final unit = units[parameter] ?? '';
+
+        return Column(
+          children: [
+            // Probability Distribution Chart
+            ProbabilityDistributionChart(
+              distributionData: statsData['distribution'] ?? {},
+              parameter: parameterName,
+              unit: unit,
+            ),
+            const SizedBox(height: 16),
+            
+            // Percentiles Chart
+            PercentilesChart(
+              percentiles: Map<String, double>.from(statsData['percentiles'] ?? {}),
+              parameter: parameterName,
+              unit: unit,
+            ),
+            const SizedBox(height: 16),
+            
+            // Confidence Interval Chart
+            ConfidenceIntervalChart(
+              confidenceInterval: Map<String, double>.from(statsData['confidenceInterval'] ?? {}),
+              parameter: parameterName,
+              unit: unit,
+            ),
+            const SizedBox(height: 16),
+            
+            // Historical Comparison Chart
+            HistoricalComparisonChart(
+              yearlyComparison: Map<String, double>.from(statsData['yearlyComparison'] ?? {}),
+              parameter: parameterName,
+              unit: unit,
+            ),
+            const SizedBox(height: 24),
+          ],
+        );
+      }).toList(),
+    );
+  }
+>>>>>>> Stashed changes
 }

@@ -1,10 +1,9 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:naca_app_mobile/views/widgets/containr_widget.dart';
 import '../../core/app_colors.dart';
 import '../../abd/controller/weather_controller.dart';
+import '../../providers/settings_provider.dart';
 import '../widgets/custom_form_widgets.dart';
 import 'warnings_screen.dart';
 
@@ -53,7 +52,29 @@ class _HomeScreenState extends State<HomeScreen> {
             // Weather info section at top
             Container(
               padding: const EdgeInsets.fromLTRB(24, 60, 24, 20),
-              child: Consumer<WeatherController>(
+              child: Column(
+                children: [
+                  // Header with settings icon
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/settings');
+                        },
+                        icon: const Icon(
+                          Icons.settings,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Weather content
+                  Consumer<WeatherController>(
                 builder: (context, weatherController, child) {
                   final weather = weatherController.currentWeather;
 
@@ -87,86 +108,92 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }
 
-                  return Column(
-                    children: [
-                      Text(
-                        weather.cityName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        weather.temperatureString,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 80,
-                          fontWeight: FontWeight.w100,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        weather.description,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Consumer<WeatherController>(
-                        builder: (context, controller, child) {
-                          final todayForecast =
-                              controller.weeklyForecast?.isNotEmpty == true
-                                  ? controller.weeklyForecast!.first
-                                  : null;
-
-                          if (todayForecast != null) {
-                            return Text(
-                              'H: ${todayForecast.maxTemperatureString}, L: ${todayForecast.minTemperatureString}',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            );
-                          } else {
-                            return Text(
-                              'Feels like ${weather.feelsLikeString}',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                       const SizedBox(height: 16),
-                      CustomElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const WarningsScreen(),
+                  return Consumer<SettingsProvider>(
+                    builder: (context, settings, child) {
+                      return Column(
+                        children: [
+                          Text(
+                            weather.cityName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w300,
                             ),
-                          );
-                        },
-                        text: 'Show Warnings',
-                        width: 160,
-                        height: 45,
-                        gradientColors: [
-                          AppColors.warning,
-                          AppColors.warning.withValues(alpha: 0.8),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            weather.getTemperatureString(settings),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 80,
+                              fontWeight: FontWeight.w100,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            weather.description,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Consumer<WeatherController>(
+                            builder: (context, controller, child) {
+                              final todayForecast =
+                                  controller.weeklyForecast?.isNotEmpty == true
+                                      ? controller.weeklyForecast!.first
+                                      : null;
+
+                              if (todayForecast != null) {
+                                return Text(
+                                  'H: ${todayForecast.getMaxTemperatureString(settings)}, L: ${todayForecast.getMinTemperatureString(settings)}',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                );
+                              } else {
+                                return Text(
+                                  'Feels like ${weather.getFeelsLikeString(settings)}',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          CustomElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const WarningsScreen(),
+                                ),
+                              );
+                            },
+                            text: 'Show Warnings',
+                            width: 160,
+                            height: 45,
+                            gradientColors: [
+                              AppColors.warning,
+                              AppColors.warning.withValues(alpha: 0.8),
+                            ],
+                          ),
                         ],
-                      ),
-                    ],
+                      );
+                    },
                   );
                 },
               ),
-            ),
+            ],
+          ),
+        ),
 
             // Expanded section with Stack
             Expanded(
@@ -282,17 +309,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Row(
                                       children:
                                           hourlyForecast.take(12).map((hourly) {
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                right: 16,
-                                              ),
-                                              child: ContainerWidget(
-                                                time: hourly.timeString,
-                                                temperature:
-                                                    hourly.temperatureString,
-                                                condition: hourly.condition,
-                                                isHourly: true,
-                                              ),
+                                            return Consumer<SettingsProvider>(
+                                              builder: (context, settings, child) {
+                                                return Padding(
+                                                  padding: const EdgeInsets.only(
+                                                    right: 16,
+                                                  ),
+                                                  child: ContainerWidget(
+                                                    time: hourly.timeString,
+                                                    temperature:
+                                                        hourly.getTemperatureString(settings),
+                                                    condition: hourly.condition,
+                                                    isHourly: true,
+                                                  ),
+                                                );
+                                              },
                                             );
                                           }).toList(),
                                     ),
@@ -324,18 +355,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Row(
                                       children:
                                           weeklyForecast.map((daily) {
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                right: 16,
-                                              ),
-                                              child: ContainerWidget(
-                                                time: daily.dayName,
-                                                temperature:
-                                                    daily
-                                                        .temperatureRangeString,
-                                                condition: daily.condition,
-                                                isHourly: false,
-                                              ),
+                                            return Consumer<SettingsProvider>(
+                                              builder: (context, settings, child) {
+                                                return Padding(
+                                                  padding: const EdgeInsets.only(
+                                                    right: 16,
+                                                  ),
+                                                  child: ContainerWidget(
+                                                    time: daily.dayName,
+                                                    temperature:
+                                                        daily.getTemperatureRangeString(settings),
+                                                    condition: daily.condition,
+                                                    isHourly: false,
+                                                  ),
+                                                );
+                                              },
                                             );
                                           }).toList(),
                                     ),
