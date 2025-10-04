@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
 import '../../core/app_colors.dart';
 import '../widgets/custom_form_widgets.dart';
@@ -14,7 +15,7 @@ class _SearchByCityScreenState extends State<SearchByCityScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  
+
   DateTime? _selectedDate;
 
   @override
@@ -51,22 +52,42 @@ class _SearchByCityScreenState extends State<SearchByCityScreen> {
     }
   }
 
-  void _onSubmit() {
+  void _onSubmit() async {
     if (_formKey.currentState!.validate()) {
-      // Placeholder action - does nothing for now
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Form submitted successfully!'),
-          backgroundColor: AppColors.success,
-        ),
-      );
+      try {
+        final locations = await locationFromAddress(
+          _cityController.text.trim(),
+        );
+        if (locations.isNotEmpty) {
+          final loc = locations.first;
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Latitude: ${loc.latitude}, Longitude: ${loc.longitude}',
+              ),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No location found for this city.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       backgroundColor: AppColors.primary,
       appBar: AppBar(
         title: const Text(
@@ -81,10 +102,7 @@ class _SearchByCityScreenState extends State<SearchByCityScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              AppColors.gradientStart,
-              AppColors.gradientEnd,
-            ],
+            colors: [AppColors.gradientStart, AppColors.gradientEnd],
           ),
         ),
         child: SafeArea(
@@ -96,7 +114,7 @@ class _SearchByCityScreenState extends State<SearchByCityScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 32),
-                  
+
                   // City Search Field
                   CustomTextFormField(
                     controller: _cityController,
@@ -110,9 +128,9 @@ class _SearchByCityScreenState extends State<SearchByCityScreen> {
                       return null;
                     },
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Date Selection Field
                   CustomTextFormField(
                     controller: _dateController,
@@ -130,9 +148,9 @@ class _SearchByCityScreenState extends State<SearchByCityScreen> {
                       return null;
                     },
                   ),
-                  
+
                   const Spacer(),
-                  
+
                   // Submit Button
                   CustomElevatedButton(
                     onPressed: _onSubmit,
@@ -141,7 +159,7 @@ class _SearchByCityScreenState extends State<SearchByCityScreen> {
                     width: double.infinity,
                     height: 56,
                   ),
-                  
+
                   const SizedBox(height: 32),
                 ],
               ),

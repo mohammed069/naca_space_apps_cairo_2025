@@ -6,8 +6,8 @@ import 'views/screens/wrapper_screen.dart';
 import 'abd/controller/weather_controller.dart';
 
 void main() async {
-  Map<String, double> x = await AppRepo.initTest();
-  print("The probability is==================================> $x");
+  // Map<String, double> x = await AppRepo.initTest();
+  // print("The probability is==================================> $x");
   runApp(const MyApp());
 }
 
