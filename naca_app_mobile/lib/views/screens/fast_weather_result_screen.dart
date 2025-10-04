@@ -8,6 +8,10 @@ import 'package:naca_app_mobile/views/screens/warnings_screen.dart';
 import '../../core/app_colors.dart';
 import '../../data/repo.dart';
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+import '../widgets/statistical_charts.dart';
+>>>>>>> Stashed changes
 =======
 import '../widgets/statistical_charts.dart';
 >>>>>>> Stashed changes
@@ -35,7 +39,13 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
   String? _errorMessage;
   final Map<String, double> _dailyData = {};
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   final Map<String, Map<String, double>> _hourlyData = {};
+=======
+  final Map<String, double> _probabilityData = {};
+  final Map<String, Map<String, double>> _hourlyData = {};
+  final Map<String, Map<String, dynamic>> _statisticalData = {};
+>>>>>>> Stashed changes
 =======
   final Map<String, double> _probabilityData = {};
   final Map<String, Map<String, double>> _hourlyData = {};
@@ -102,7 +112,10 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
       _dailyData[parameter] = dailyValue;
       
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
       // Fetch probability data with appropriate thresholds
       final threshold = _getThresholdForParameter(parameter);
       final probabilityValue = await AppRepo.calculateProbability(
@@ -123,6 +136,9 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
       );
       _statisticalData[parameter] = statisticalData;
       
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
       final hourlyValues = await AppRepo.getProbabilityOfHourlyData(
         monthDay,
@@ -142,7 +158,10 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
   }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
   double _getThresholdForParameter(String parameter) {
     switch (parameter) {
       case 'T2M': // Temperature
@@ -160,6 +179,9 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
     }
   }
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   Future<void> _fetchRemainingParameters(String monthDay) async {
     final remainingParams = widget.parameters.where((p) => !_dailyData.containsKey(p)).toList();
@@ -349,7 +371,11 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
           
           // Weather data cards
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
           ..._dailyData.entries.map((entry) => _buildParameterCard(entry.key, entry.value)),
+=======
+          ..._dailyData.entries.map((entry) => _buildParameterCard(entry.key, entry.value, _probabilityData[entry.key])),
+>>>>>>> Stashed changes
 =======
           ..._dailyData.entries.map((entry) => _buildParameterCard(entry.key, entry.value, _probabilityData[entry.key])),
 >>>>>>> Stashed changes
@@ -371,7 +397,10 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
           ],
           
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
           // Advanced Statistical Analysis
           if (_statisticalData.isNotEmpty) ...[
             const Text(
@@ -390,6 +419,9 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
           // Day Suitability Recommendation
           _buildDaySuitabilityCard(),
           
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
           // Show Warnings button
           const SizedBox(height: 16),
@@ -455,7 +487,11 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
   }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   Widget _buildParameterCard(String parameter, double value) {
+=======
+  Widget _buildParameterCard(String parameter, double value, double? probability) {
+>>>>>>> Stashed changes
 =======
   Widget _buildParameterCard(String parameter, double value, double? probability) {
 >>>>>>> Stashed changes
@@ -484,7 +520,10 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
     };
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
     final thresholds = {
       'T2M': '30°C',
       'RH2M': '80%',
@@ -493,6 +532,9 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
       'ALLSKY_SFC_SW_DWN': '8 kWh/m²',
     };
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -502,6 +544,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
       ),
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
       child: Row(
         children: [
@@ -527,6 +570,8 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
                   style: const TextStyle(
                     color: Colors.white,
 =======
+=======
+>>>>>>> Stashed changes
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -684,11 +729,15 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
                   'Day Suitability',
                   style: TextStyle(
                     color: cardColor,
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
                 const SizedBox(height: 4),
                 Text(
@@ -710,6 +759,8 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
             ),
           ),
 =======
+=======
+>>>>>>> Stashed changes
               ),
             ],
           ),
@@ -733,6 +784,9 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
               ),
             ),
           ],
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         ],
       ),
@@ -893,7 +947,10 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
     }
   }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 
   Widget _buildStatisticalChartsGrid() {
     return Column(
@@ -958,5 +1015,8 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
       }).toList(),
     );
   }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }
