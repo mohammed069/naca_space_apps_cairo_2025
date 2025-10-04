@@ -8,22 +8,6 @@ class AppRepo {
   static String get hourlyPoint =>
       'https://power.larc.nasa.gov/api/temporal/hourly/point';
 
-  static Future<Map<String, double>> initTest() async {
-    // double prob = await getProbabilityOfOneDay(
-    //   "0101",
-    //   "T2M_MAX",
-    //   30.444,
-    //   30.0444,
-    // );
-    Map<String, double> prob = await getProbabilityOfHourlyData(
-      "0101",
-      "T2M",
-      30.444,
-      30.0444,
-    );
-    return prob;
-  }
-
   static Future<Map<String, double>> getProbabilityOfHourlyData(
     String monthDay,
     String parameter,
