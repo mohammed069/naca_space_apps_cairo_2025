@@ -3,6 +3,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
 import '../../core/app_colors.dart';
 import '../widgets/custom_form_widgets.dart';
+import 'package:naca_app_mobile/views/screens/fast_weather_result_screen.dart';
 
 class SearchByCityScreen extends StatefulWidget {
   const SearchByCityScreen({super.key});
@@ -61,12 +62,22 @@ class _SearchByCityScreenState extends State<SearchByCityScreen> {
         if (locations.isNotEmpty) {
           final loc = locations.first;
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Latitude: ${loc.latitude}, Longitude: ${loc.longitude}',
+          // Navigate to weather result screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FastWeatherResultScreen(
+                latitude: loc.latitude,
+                longitude: loc.longitude,
+                date: _selectedDate!,
+                parameters: const [
+                  'T2M',
+                  'RH2M',
+                  'WS2M',
+                  'PRECTOTCORR',
+                  'ALLSKY_SFC_SW_DWN'
+                ],
               ),
-              backgroundColor: AppColors.success,
             ),
           );
         } else {

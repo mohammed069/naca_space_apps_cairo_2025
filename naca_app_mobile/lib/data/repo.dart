@@ -68,9 +68,9 @@ class AppRepo {
     _dio = Dio(
       BaseOptions(
         baseUrl: 'https://power.larc.nasa.gov/api/temporal',
-        connectTimeout: Duration(milliseconds: 30000),
-        receiveTimeout: Duration(milliseconds: 30000),
-        sendTimeout: Duration(milliseconds: 30000),
+        connectTimeout: Duration(milliseconds: 60000), // 60 seconds
+        receiveTimeout: Duration(milliseconds: 120000), // 2 minutes
+        sendTimeout: Duration(milliseconds: 60000), // 60 seconds
       ),
     );
   }
@@ -103,20 +103,31 @@ class AppRepo {
     Options? options,
   }) async {
     try {
-      // print("================start================");
+      print("Making API request to: $path");
+      print("Query parameters: $queryParameters");
+      
       final response = await _dio.get(
         path,
         options: options,
         queryParameters: queryParameters,
       );
-      // print("===============response================");
-      // debugPrint(response.data.toString(), wrapWidth: 1024);
-      // print("=================end================");
+      
+      print("API request successful");
       return NasaResponse.fromJson(response.data);
     } on DioException catch (e) {
-      throw Exception('Dio error: ${e.message}');
+      print("Dio error occurred: ${e.message}");
+      if (e.type == DioExceptionType.connectionTimeout) {
+        throw Exception('انتهت مهلة الاتصال. يرجى التأكد من الاتصال بالإنترنت والمحاولة مرة أخرى.');
+      } else if (e.type == DioExceptionType.receiveTimeout) {
+        throw Exception('انتهت مهلة استقبال البيانات. الخادم يستغرق وقتاً أطول من المعتاد.');
+      } else if (e.type == DioExceptionType.sendTimeout) {
+        throw Exception('انتهت مهلة إرسال الطلب. يرجى المحاولة مرة أخرى.');
+      } else {
+        throw Exception('خطأ في الشبكة: ${e.message ?? "خطأ غير معروف"} يرجى التأكد من الاتصال بالإنترنت.');
+      }
     } catch (e) {
-      throw Exception('Unexpected error: ${e.toString()}');
+      print("Unexpected error: ${e.toString()}");
+      throw Exception('خطأ في معالجة بيانات الطقس: ${e.toString()}');
     }
   }
 

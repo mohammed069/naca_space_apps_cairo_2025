@@ -43,6 +43,7 @@ dependencies:
   latlong2: ^0.9.1
   curved_navigation_bar: ^1.0.6
   geocoding: ^4.0.0
+  fl_chart: ^0.68.0
   
 
 dev_dependencies:

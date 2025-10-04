@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../../core/app_colors.dart';
 import '../widgets/custom_form_widgets.dart';
+import 'fast_weather_result_screen.dart';
+
 
 class CoordinatesScreen extends StatefulWidget {
   const CoordinatesScreen({super.key});
@@ -79,11 +81,25 @@ class _CoordinatesScreenState extends State<CoordinatesScreen> {
 
   void _onSubmit() {
     if (_formKey.currentState!.validate()) {
-      // Placeholder action - does nothing for now
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Coordinates form submitted successfully!'),
-          backgroundColor: AppColors.success,
+      final latitude = double.parse(_latitudeController.text.trim());
+      final longitude = double.parse(_longitudeController.text.trim());
+      
+      // Navigate to weather result screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+                                  builder: (context) => FastWeatherResultScreen(
+            latitude: latitude,
+            longitude: longitude,
+            date: _selectedDate!,
+            parameters: const [
+              'T2M',
+              'RH2M',
+              'WS2M',
+              'PRECTOTCORR',
+              'ALLSKY_SFC_SW_DWN'
+            ],
+          ),
         ),
       );
     }

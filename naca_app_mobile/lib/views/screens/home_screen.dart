@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:naca_app_mobile/views/widgets/containr_widget.dart';
 import '../../core/app_colors.dart';

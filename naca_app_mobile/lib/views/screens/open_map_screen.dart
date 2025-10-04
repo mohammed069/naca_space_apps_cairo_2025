@@ -2,8 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:intl/intl.dart';
 import '../../core/app_colors.dart';
 import '../widgets/custom_form_widgets.dart';
+import 'fast_weather_result_screen.dart';
 
 class OpenMapScreen extends StatefulWidget {
   const OpenMapScreen({super.key});
@@ -13,7 +15,76 @@ class OpenMapScreen extends StatefulWidget {
 }
 
 class _OpenMapScreenState extends State<OpenMapScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _dateController = TextEditingController();
   LatLng? selectedLocation;
+  DateTime? _selectedDate;
+
+  @override
+  void dispose() {
+    _dateController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selectDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2024),
+      lastDate: DateTime(2026),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: AppColors.primary,
+              brightness: Brightness.dark,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        _dateController.text = DateFormat('yyyyMMdd').format(picked);
+      });
+    }
+  }
+
+  void _onSubmit() {
+    if (_formKey.currentState!.validate()) {
+      if (selectedLocation == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select a location on the map'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Navigate to weather result screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FastWeatherResultScreen(
+            latitude: selectedLocation!.latitude,
+            longitude: selectedLocation!.longitude,
+            date: _selectedDate!,
+            parameters: const [
+              'T2M',
+              'RH2M', 
+              'WS2M',
+              'PRECTOTCORR',
+              'ALLSKY_SFC_SW_DWN'
+            ],
+          ),
+        ),
+      );
+    }
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -35,107 +106,158 @@ class _OpenMapScreenState extends State<OpenMapScreen> {
             ],
           ),
         ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.map_outlined,
-                size: 80,
-                color: AppColors.textSecondary,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Choose Location on Map',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Press the button below to open the map\nand choose a location to get weather data',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.textSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              CustomElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => MapPickerScreen(
-                        onLocationSelected: (location) {
-                          setState(() {
-                            selectedLocation = location;
-                          });
-                          debugPrint('Location selected: ${location.latitude}, ${location.longitude}');
-                        },
-                      ),
-                    ),
-                  );
-                },
-                text: 'Open Map',
-                icon: Icons.map,
-              ),
-              if (selectedLocation != null) 
-                ...[
-                  const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  margin: const EdgeInsets.symmetric(horizontal: 32),
-                  decoration: BoxDecoration(
-                    color: AppColors.cardBackground,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppColors.border,
-                      width: 1,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 32),
+                  
+                  // Header Section
+                  Center(
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.map_outlined,
+                          size: 80,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Choose Location on Map',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Select a location and date to get weather data',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppColors.textSecondary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.location_on,
-                            color: AppColors.iconAccent,
-                            size: 20,
+                  
+                  const SizedBox(height: 32),
+                  
+                  // Map Selection Button
+                  CustomElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => MapPickerScreen(
+                            onLocationSelected: (location) {
+                              setState(() {
+                                selectedLocation = location;
+                              });
+                              debugPrint('Location selected: ${location.latitude}, ${location.longitude}');
+                            },
                           ),
-                          const SizedBox(width: 8),
+                        ),
+                      );
+                    },
+                    text: 'Open Map',
+                    icon: Icons.map,
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Selected Location Display
+                  if (selectedLocation != null)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.cardBackground,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.border,
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                color: AppColors.iconAccent,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Selected Location:',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
                           Text(
-                            'Selected Location:',
+                            'Latitude: ${selectedLocation!.latitude.toStringAsFixed(6)}',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          Text(
+                            'Longitude: ${selectedLocation!.longitude.toStringAsFixed(6)}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Latitude: ${selectedLocation!.latitude.toStringAsFixed(6)}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      Text(
-                        'Longitude: ${selectedLocation!.longitude.toStringAsFixed(6)}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
+                    ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Date Selection Field
+                  CustomTextFormField(
+                    controller: _dateController,
+                    labelText: 'Select Date',
+                    hintText: 'Tap to select date',
+                    prefixIcon: Icons.calendar_today,
+                    suffixIcon: Icons.date_range,
+                    onSuffixIconPressed: _selectDate,
+                    readOnly: true,
+                    onTap: _selectDate,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Date is required';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-              ],
-            ],
+                  
+                  const Spacer(),
+                  
+                  // Submit Button
+                  CustomElevatedButton(
+                    onPressed: _onSubmit,
+                    text: 'Submit',
+                    icon: Icons.send,
+                    width: double.infinity,
+                    height: 56,
+                  ),
+                  
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
           ),
         ),
       ),
