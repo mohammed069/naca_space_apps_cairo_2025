@@ -7,14 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:naca_app_mobile/views/screens/warnings_screen.dart';
 import '../../core/app_colors.dart';
 import '../../data/repo.dart';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
 import '../widgets/statistical_charts.dart';
->>>>>>> Stashed changes
-=======
-import '../widgets/statistical_charts.dart';
->>>>>>> Stashed changes
 
 class FastWeatherResultScreen extends StatefulWidget {
   final double latitude;
@@ -38,32 +31,22 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   final Map<String, double> _dailyData = {};
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  final Map<String, Map<String, double>> _hourlyData = {};
-=======
   final Map<String, double> _probabilityData = {};
   final Map<String, Map<String, double>> _hourlyData = {};
   final Map<String, Map<String, dynamic>> _statisticalData = {};
->>>>>>> Stashed changes
-=======
-  final Map<String, double> _probabilityData = {};
-  final Map<String, Map<String, double>> _hourlyData = {};
-  final Map<String, Map<String, dynamic>> _statisticalData = {};
->>>>>>> Stashed changes
   int _loadedParameters = 0;
 
   @override
   void initState() {
     super.initState();
     _fetchWeatherDataFast();
-    
+
     // إضافة timeout للمستخدم (30 ثانية)
     Timer(const Duration(seconds: 30), () {
       if (_isLoading && _loadedParameters == 0) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Request timed out. Please try again later.'; // رسالة الخطأ عند انتهاء المهلة
+          _errorMessage = 'Request timed out. Please try again later.';
         });
       }
     });
@@ -78,21 +61,18 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
 
     try {
       final monthDay = DateFormat('MMdd').format(widget.date);
-      
-      // جلب معامل واحد فقط في البداية (الحرارة)
+
       if (widget.parameters.contains('T2M')) {
         await _fetchSingleParameter('T2M', monthDay);
       } else if (widget.parameters.isNotEmpty) {
         await _fetchSingleParameter(widget.parameters.first, monthDay);
       }
-      
+
       setState(() {
         _isLoading = false;
       });
-      
-      // جلب باقي المعاملات في الخلفية
+
       _fetchRemainingParameters(monthDay);
-      
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -110,13 +90,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
         widget.longitude,
       );
       _dailyData[parameter] = dailyValue;
-      
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
-      // Fetch probability data with appropriate thresholds
+
       final threshold = _getThresholdForParameter(parameter);
       final probabilityValue = await AppRepo.calculateProbability(
         monthDay,
@@ -126,8 +100,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
         threshold,
       );
       _probabilityData[parameter] = probabilityValue;
-      
-      // Fetch advanced statistical data
+
       final statisticalData = await AppRepo.getAdvancedStatistics(
         monthDay,
         parameter,
@@ -135,11 +108,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
         widget.longitude,
       );
       _statisticalData[parameter] = statisticalData;
-      
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
       final hourlyValues = await AppRepo.getProbabilityOfHourlyData(
         monthDay,
         parameter,
@@ -147,7 +116,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
         widget.longitude,
       );
       _hourlyData[parameter] = hourlyValues;
-      
+
       setState(() {
         _loadedParameters++;
       });
@@ -157,35 +126,26 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
     }
   }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
   double _getThresholdForParameter(String parameter) {
     switch (parameter) {
-      case 'T2M': // Temperature
-        return 30.0; // Above 30°C
-      case 'RH2M': // Humidity
-        return 80.0; // Above 80%
-      case 'WS2M': // Wind Speed
-        return 10.0; // Above 10 m/s
-      case 'PRECTOTCORR': // Precipitation
-        return 5.0; // Above 5mm
-      case 'ALLSKY_SFC_SW_DWN': // Solar Radiation
-        return 8.0; // Above 8 kWh/m²
+      case 'T2M':
+        return 30.0;
+      case 'RH2M':
+        return 80.0;
+      case 'WS2M':
+        return 10.0;
+      case 'PRECTOTCORR':
+        return 5.0;
+      case 'ALLSKY_SFC_SW_DWN':
+        return 8.0;
       default:
         return 0.0;
     }
   }
 
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   Future<void> _fetchRemainingParameters(String monthDay) async {
     final remainingParams = widget.parameters.where((p) => !_dailyData.containsKey(p)).toList();
-    
+
     for (String parameter in remainingParams) {
       try {
         await _fetchSingleParameter(parameter, monthDay);
@@ -209,7 +169,6 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              // Header
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Row(
@@ -237,8 +196,6 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
                   ],
                 ),
               ),
-
-              // Content
               Expanded(
                 child: _isLoading && _loadedParameters == 0
                     ? const Center(
@@ -336,13 +293,12 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          // Loading indicator for additional parameters
           if (_loadedParameters < widget.parameters.length)
             Container(
               margin: const EdgeInsets.only(bottom: 16),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
+                color: Colors.white.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -368,19 +324,8 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
                 ],
               ),
             ),
-          
-          // Weather data cards
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-          ..._dailyData.entries.map((entry) => _buildParameterCard(entry.key, entry.value)),
-=======
-          ..._dailyData.entries.map((entry) => _buildParameterCard(entry.key, entry.value, _probabilityData[entry.key])),
->>>>>>> Stashed changes
-=======
-          ..._dailyData.entries.map((entry) => _buildParameterCard(entry.key, entry.value, _probabilityData[entry.key])),
->>>>>>> Stashed changes
-          
-          // Charts section
+          ..._dailyData.entries.map((entry) =>
+              _buildParameterCard(entry.key, entry.value, _probabilityData[entry.key])),
           if (_hourlyData.isNotEmpty) ...[
             const SizedBox(height: 32),
             const Text(
@@ -395,13 +340,6 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
             _buildChartsGrid(),
             const SizedBox(height: 32),
           ],
-          
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
-          // Advanced Statistical Analysis
           if (_statisticalData.isNotEmpty) ...[
             const Text(
               'Advanced Statistical Analysis',
@@ -415,15 +353,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
             _buildStatisticalChartsGrid(),
             const SizedBox(height: 32),
           ],
-          
-          // Day Suitability Recommendation
           _buildDaySuitabilityCard(),
-          
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-          // Show Warnings button
           const SizedBox(height: 16),
           Container(
             width: double.infinity,
@@ -437,10 +367,9 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF6A5AE0).withValues(alpha: 0.3),
-                  spreadRadius: 0,
+                  color: const Color(0xFF6A5AE0).withOpacity(0.3),
                   blurRadius: 20,
-                  offset: const Offset(0, 10),
+                  offset: Offset(0, 10),
                 ),
               ],
             ),
@@ -465,12 +394,12 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              icon:  Icon(
+              icon: const Icon(
                 Icons.warning_amber_outlined,
                 color: Colors.white,
                 size: 24,
               ),
-              label: Text(
+              label: const Text(
                 'Show Warnings',
                 style: TextStyle(
                   color: Colors.white,
@@ -486,15 +415,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
     );
   }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  Widget _buildParameterCard(String parameter, double value) {
-=======
   Widget _buildParameterCard(String parameter, double value, double? probability) {
->>>>>>> Stashed changes
-=======
-  Widget _buildParameterCard(String parameter, double value, double? probability) {
->>>>>>> Stashed changes
     final parameterNames = {
       'T2M': 'Temperature',
       'RH2M': 'Humidity',
@@ -519,11 +440,6 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
       'ALLSKY_SFC_SW_DWN': Icons.wb_sunny,
     };
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
     final thresholds = {
       'T2M': '30°C',
       'RH2M': '80%',
@@ -532,46 +448,14 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
       'ALLSKY_SFC_SW_DWN': '8 kWh/m²',
     };
 
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: Colors.white.withOpacity(0.15),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
       ),
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icons[parameter] ?? Icons.help,
-              color: Colors.white,
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  parameterNames[parameter] ?? parameter,
-                  style: const TextStyle(
-                    color: Colors.white,
-=======
-=======
->>>>>>> Stashed changes
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -580,7 +464,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -606,7 +490,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
                     Text(
                       'Average: ${value.toStringAsFixed(1)}${units[parameter] ?? ''}',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: Colors.white.withOpacity(0.9),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -621,20 +505,16 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
+                color: Colors.white.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    children: [
-                      Icon(
-                        Icons.analytics,
-                        color: Colors.orange,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 6),
+                    children: const [
+                      Icon(Icons.analytics, color: Colors.orange, size: 16),
+                      SizedBox(width: 6),
                       Text(
                         'Probability Analysis',
                         style: TextStyle(
@@ -649,7 +529,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
                   Text(
                     'There is a ${probability.toStringAsFixed(1)}% chance that ${parameterNames[parameter]?.toLowerCase()} exceeds ${thresholds[parameter]} on this day.',
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: Colors.white.withOpacity(0.8),
                       fontSize: 13,
                       height: 1.3,
                     ),
@@ -664,30 +544,28 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
   }
 
   Widget _buildDaySuitabilityCard() {
-    // Calculate suitability based on probability data
     String recommendation;
     Color cardColor;
     IconData recommendationIcon;
-    
+
     bool isNotSuitable = false;
     List<String> reasons = [];
-    
-    // Check probability thresholds for bad weather conditions
+
     if (_probabilityData['PRECTOTCORR'] != null && _probabilityData['PRECTOTCORR']! > 60) {
       isNotSuitable = true;
       reasons.add('High chance of rain (${_probabilityData['PRECTOTCORR']!.toStringAsFixed(1)}%)');
     }
-    
+
     if (_probabilityData['WS2M'] != null && _probabilityData['WS2M']! > 50) {
       isNotSuitable = true;
       reasons.add('High chance of strong winds (${_probabilityData['WS2M']!.toStringAsFixed(1)}%)');
     }
-    
+
     if (_probabilityData['T2M'] != null && _probabilityData['T2M']! > 70) {
       isNotSuitable = true;
       reasons.add('High chance of extreme heat (${_probabilityData['T2M']!.toStringAsFixed(1)}%)');
     }
-    
+
     if (isNotSuitable) {
       recommendation = '⚠️ Not recommended for outdoor plans';
       cardColor = Colors.orange;
@@ -697,14 +575,14 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
       cardColor = Colors.green;
       recommendationIcon = Icons.check_circle;
     }
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: cardColor.withValues(alpha: 0.15),
+        color: cardColor.withOpacity(0.15),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cardColor.withValues(alpha: 0.3)),
+        border: Border.all(color: cardColor.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -714,7 +592,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: cardColor.withValues(alpha: 0.2),
+                  color: cardColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -729,38 +607,10 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
                   'Day Suitability',
                   style: TextStyle(
                     color: cardColor,
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                const SizedBox(height: 4),
-                Text(
-                  'Expected value for this day',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            '${value.toStringAsFixed(1)}${units[parameter] ?? ''}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-=======
-=======
->>>>>>> Stashed changes
               ),
             ],
           ),
@@ -778,22 +628,17 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
             Text(
               'Reasons: ${reasons.join(', ')}',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.8),
+                color: Colors.white.withOpacity(0.8),
                 fontSize: 13,
                 height: 1.3,
               ),
             ),
           ],
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
         ],
       ),
     );
   }
-
-  Widget _buildChartsGrid() {
+    Widget _buildChartsGrid() {
     final availableParams = _hourlyData.keys.take(4).toList();
     if (availableParams.isEmpty) return const SizedBox();
 
@@ -827,7 +672,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
     if (hourlyData == null || hourlyData.isEmpty) {
       return Container(
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.1),
+          color: Colors.white.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Center(
@@ -852,9 +697,9 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
+        color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -876,7 +721,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: Colors.white.withOpacity(0.1),
                       strokeWidth: 1,
                     );
                   },
@@ -918,7 +763,7 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
                     dotData: const FlDotData(show: false),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: _getParameterColor(parameter).withValues(alpha: 0.1),
+                      color: _getParameterColor(parameter).withOpacity(0.1),
                     ),
                   ),
                 ],
@@ -929,35 +774,28 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
       ),
     );
   }
-
-  Color _getParameterColor(String parameter) {
+    Color _getParameterColor(String parameter) {
     switch (parameter) {
       case 'T2M':
-        return Colors.orange;
+        return Colors.orange; // Temperature
       case 'RH2M':
-        return Colors.blue;
+        return Colors.blue; // Humidity
       case 'WS2M':
-        return Colors.green;
+        return Colors.green; // Wind Speed
       case 'PRECTOTCORR':
-        return Colors.lightBlue;
+        return Colors.lightBlue; // Precipitation
       case 'ALLSKY_SFC_SW_DWN':
-        return Colors.yellow;
+        return Colors.yellow; // Solar Radiation
       default:
         return Colors.white;
     }
   }
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
-
-  Widget _buildStatisticalChartsGrid() {
+    Widget _buildStatisticalChartsGrid() {
     return Column(
       children: _statisticalData.entries.map((entry) {
         final parameter = entry.key;
         final statsData = entry.value;
-        
+
         final parameterNames = {
           'T2M': 'Temperature',
           'RH2M': 'Humidity',
@@ -986,26 +824,29 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
               unit: unit,
             ),
             const SizedBox(height: 16),
-            
+
             // Percentiles Chart
             PercentilesChart(
-              percentiles: Map<String, double>.from(statsData['percentiles'] ?? {}),
+              percentiles:
+                  Map<String, double>.from(statsData['percentiles'] ?? {}),
               parameter: parameterName,
               unit: unit,
             ),
             const SizedBox(height: 16),
-            
+
             // Confidence Interval Chart
             ConfidenceIntervalChart(
-              confidenceInterval: Map<String, double>.from(statsData['confidenceInterval'] ?? {}),
+              confidenceInterval:
+                  Map<String, double>.from(statsData['confidenceInterval'] ?? {}),
               parameter: parameterName,
               unit: unit,
             ),
             const SizedBox(height: 16),
-            
+
             // Historical Comparison Chart
             HistoricalComparisonChart(
-              yearlyComparison: Map<String, double>.from(statsData['yearlyComparison'] ?? {}),
+              yearlyComparison:
+                  Map<String, double>.from(statsData['yearlyComparison'] ?? {}),
               parameter: parameterName,
               unit: unit,
             ),
@@ -1015,8 +856,5 @@ class _FastWeatherResultScreenState extends State<FastWeatherResultScreen> {
       }).toList(),
     );
   }
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
 }
