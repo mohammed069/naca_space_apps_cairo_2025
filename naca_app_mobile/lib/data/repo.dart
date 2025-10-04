@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:naca_app_mobile/models/nasa_response_model.dart';
 
 class AppRepo {
@@ -90,41 +89,6 @@ class AppRepo {
         sendTimeout: Duration(milliseconds: 30000),
       ),
     );
-
-    // final response = await get(
-    //   path: buildWeatherDataUrl(
-    //     latitude: 30.0444,
-    //     longitude: 30.0444,
-    //     startDate: "20010101",
-    //     endDate: "20241231",
-    //     parameters: [
-    //       "T2M",
-    //       "T2M_MIN",
-    //       "T2M_MAX",
-    //       "ALLSKY_SFC_SW_DWN",
-    //       "RH2M",
-    //       "WS2M",
-    //       "PRECTOTCORR",
-    //       "PS",
-    //     ],
-    //   ),
-    //   options: Options(responseType: ResponseType.json),
-    // );
-    // print(
-    //   "====================T2M=>${response.properties.parameter["T2M"]}====================",
-    // );
-    // final averages = calculateDailyAverages(
-    //   response.properties.parameter["T2M"]!,
-    // );
-    // print("====================average=>$averages====================");
-
-    // final averageOfOneDay = calculateOneDayAverage(
-    //   response.properties.parameter["T2M"]!,
-    //   "0101",
-    // );
-    // print(
-    //   "====================averageOfOneDay=>$averageOfOneDay====================",
-    // );
   }
 
   static String buildWeatherDataUrl({
@@ -155,15 +119,15 @@ class AppRepo {
     Options? options,
   }) async {
     try {
-      print("================start================");
+      // print("================start================");
       final response = await _dio.get(
         path,
         options: options,
         queryParameters: queryParameters,
       );
-      print("===============response================");
-      debugPrint(response.data.toString(), wrapWidth: 1024);
-      print("=================end================");
+      // print("===============response================");
+      // debugPrint(response.data.toString(), wrapWidth: 1024);
+      // print("=================end================");
       return NasaResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception('Dio error: ${e.message}');
@@ -238,43 +202,4 @@ class AppRepo {
 
     return averages;
   }
-
-  // static Map<String, double> calculateHourlyAverages(
-  //   Map<String, double> temps,
-  //   String monthDay,
-  // ) {
-  //   Map<String, List<double>> grouped = {};
-
-  //   temps.forEach((dateHour, value) {
-  //     String hour = dateHour.substring(8, 10);
-
-  //     grouped.putIfAbsent(hour, () => []);
-  //     grouped[hour]!.add(value);
-  //   });
-
-  //   Map<String, double> averages = {};
-  //   grouped.forEach((hour, values) {
-  //     double avg = values.reduce((a, b) => a + b) / values.length;
-  //     averages[hour] = avg;
-  //   });
-
-  //   return averages;
-  // }
-
-  // static double calculateHourlyAverageOfOneDay(
-  //   Map<String, double> temps,
-  //   String monthDay,
-  // ) {
-  //   if (temps.isEmpty) return 0.0;
-  //   double total = 0.0;
-  //   int count = 0;
-  //   temps.forEach((date, value) {
-  //     String currentMonthDay = date.substring(4, 8);
-  //     if (currentMonthDay == monthDay) {
-  //       total += value;
-  //       count++;
-  //     }
-  //   });
-  //   return count > 0 ? total / count : 0.0;
-  // }
 }
